@@ -20,7 +20,12 @@ var bluefruit = {
     rxCharacteristic: '6e400003-b5a3-f393-e0a9-e50e24dcca9e'  // receive is from the phone's perspective
 };
 
+var is_connected = false;
+var connected_device = null;
+var device_list = [];
+
 var app = {
+
     initialize: function() {
         this.bindEvents();
         detailPage.hidden = true;
@@ -35,7 +40,6 @@ var app = {
         goHome.addEventListener('touchstart', this.showMainPage, false); 
         directConnect.addEventListener('touchstart', this.showSearchPage, false); 
         openBrowser.addEventListener('touchstart', this.showBrowser, false);
-
         sendButton.addEventListener('click', this.sendData, false);
     },
 
@@ -44,6 +48,7 @@ var app = {
     },
 
     refreshDeviceList: function() {
+        device_list = [];
         searchSpinner.hidden = false;
         refreshButton.hidden = true;
         deviceList.innerHTML = ''; // empties the list
@@ -81,7 +86,10 @@ var app = {
 
         lielm.data("device-id", device.id); 
 
-        $("#deviceList").append(lielm);
+        if (device_list.indexOf(device.id) < 0) {
+            device_list.push(device.id);
+            $("#deviceList").append(lielm);
+        }
     },
 
     connect: function(e) {
@@ -94,13 +102,13 @@ var app = {
             deviceId = target.closest('li.device-item').data('device-id');
         }
         console.log(deviceId);
-        
+        is_connected = true;
+        connected_device = deviceId;
+
         onConnect = function(peripheral) {
             app.determineWriteType(peripheral);
             // subscribe for incoming data
             ble.startNotification(deviceId, bluefruit.serviceUUID, bluefruit.rxCharacteristic, app.onData, app.onError);
-            sendButton.dataset.deviceId = deviceId;
-            disconnectButton.dataset.deviceId = deviceId;
             resultDiv.innerHTML = "";
             app.showDetailPage();
         };
@@ -152,7 +160,7 @@ var app = {
         };
 
         var data = stringToBytes(messageInput.value);
-        var deviceId = event.target.dataset.deviceId;
+        var deviceId = connected_device;
 
         if (app.writeWithoutResponse) {
             ble.writeWithoutResponse(
@@ -173,17 +181,21 @@ var app = {
     },
 
     disconnect: function(event) {
-        var deviceId = event.target.dataset.deviceId;
-        ble.disconnect(deviceId, app.showMainPage, app.onError);
+        console.log("Disconnecting");
+        ble.disconnect(connected_device, app.showMainPage, app.onError);
+        is_connected = false;
+        connected_device = null;
     },
 
     showMainPage: function() {
+        if (is_connected) { app.disconnect(); }
         mainPage.hidden = false;
         detailPage.hidden = true;
         searchPage.hidden = true;
     },
 
     showSearchPage: function() {
+        if (is_connected) { app.disconnect(); }
         mainPage.hidden = true;
         detailPage.hidden = true;
         searchPage.hidden = false;
@@ -224,8 +236,12 @@ var app = {
         }
     },
 
-    onError: function(reason) {
-        alert("ERROR: " + reason); // real apps should use notification.alert
+    onError: function(err) {
+        is_connected = false;
+        connected_device = null;
+        alert(err.errorDescription); // real apps should use notification.alert
+        console.log(err);
+        app.showMainPage();
     }
 
 };
