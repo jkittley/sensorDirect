@@ -1,0 +1,10 @@
+.DS_Store
+.vscode
+platforms/ios/
+platforms/android/
+*.xcuserdatad
+plugins/
+hooks/
+
+node_modules/
+resources/signing
