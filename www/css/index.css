@@ -24,3 +24,24 @@ nav {
 .device-item.disabled span {
     background-color: #f0f0ff;
 }
+
+
+#mainPage iframe {
+    position: absolute;
+    top: 58px;
+    left:0;
+    right:0;
+    bottom: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    width: 100%;
+    border: 0;
+}
+
+nav {
+    z-index: 999999;
+}
+
+.navbar a {
+    font-size: 18px;
+}

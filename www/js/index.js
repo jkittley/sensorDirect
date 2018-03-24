@@ -39,12 +39,16 @@ var app = {
         deviceList.addEventListener('touchstart', this.connect, false); // assume not scrolling
         goHome.addEventListener('touchstart', this.showMainPage, false); 
         directConnect.addEventListener('touchstart', this.showSearchPage, false); 
-        openBrowser.addEventListener('touchstart', this.showBrowser, false);
+        refreshBrowser.addEventListener('touchstart', this.refreshIframe, false);
         sendButton.addEventListener('click', this.sendData, false);
     },
 
     onDeviceReady: function() {
       
+    },
+
+    refreshIframe: function() {
+        $('#mainPage iframe').attr("src", $('#mainPage iframe').attr("src"));
     },
 
     refreshDeviceList: function() {
@@ -207,6 +211,8 @@ var app = {
         mainPage.hidden = false;
         detailPage.hidden = true;
         searchPage.hidden = true;
+        refreshBrowser.hidden = false;
+        directConnect.hidden = false;
     },
 
     showSearchPage: function() {
@@ -215,6 +221,8 @@ var app = {
         detailPage.hidden = true;
         searchPage.hidden = false;
         searchConnect.hidden = true;
+        refreshBrowser.hidden = true;
+        directConnect.hidden = true;
         if (device_list.length == 0) app.refreshDeviceList();
         $('.device-item').removeClass('active');
     },
@@ -223,6 +231,8 @@ var app = {
         mainPage.hidden = true;
         detailPage.hidden = false;
         searchPage.hidden = true;
+        refreshBrowser.hidden = true;
+        directConnect.hidden = true;
     },
    
     showBrowser: function() {

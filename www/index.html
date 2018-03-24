@@ -28,71 +28,74 @@
         <title>SensorDirect</title>
     </head>
     <body>
-        <nav class="navbar navbar-dark bg-primary">
-            <a id="goHome" class="navbar-brand" href="#">Sensors <i class="fas fa-home"></i></a>
-            <ul class="navbar-nav ml-auto">
+
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #ec68b9;">
+        <a id="goHome" class="navbar-brand" href="#"><i class="fas fa-home"></i></a>
+        <button class="navbar-toggler bg-default" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
                 <li class="nav-item active">
-                    <a id="directConnect" class="nav-link" href="#">
-                        <span class="btn btn-secondary">
-                            <i class="fab fa-bluetooth"></i> Add
-                        </span>
-                    </a>
+                    <a id="directConnect" class="nav-link" href="#"><i class="fab fa-bluetooth"></i> Connect</a>
+                </li>
+                <li class="nav-item active">
+                    <a id="refreshBrowser" class="nav-link" href="#"><i class="fas fa-sync"></i> Refresh</a>
                 </li>
             </ul>
-        </nav>
-
-        <div class="app container-fluid">
-            
-            <div id="mainPage">
-                <iframe src="https://cordova.apache.org" width="200" height="100">
-                        Your browser doesn't support iframes
-                </iframe>
-             
-                <button id="openBrowser" class="btn btn-primary btn-block"><i class="fas fa-chart-pie"></i> Monitor</button>
-            </div>
-            
-            <div id="searchPage">
-                <h3>Devices</h3>
-                <ul id="deviceList" class="list-group"></ul>
-                <BR>
-                <p>
-                    <button id="refreshButton" class="btn btn-secondary btn-block"><i class="fas fa-sync"></i> Refresh</button>
-                    <p id="searchSpinner" class="lead text-center"><i class="fas fa-sync fa-spin"></i> Refreshing..</p>
-                    <p id="searchConnect" class="lead text-center"><i class="fas fa-spinner fa-pulse"></i> Connecting...</p>
-            </div>
-            
-
-            <div id="detailPage">
-                <h4>Signal</h4>
-                <div id="bar-signal" class="progress">
-                    <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                <h4>Volume</h4>
-                <div id="bar-volume" class="progress">
-                    <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                <h4>Messages</h4>
-                <div id="resultDiv"></div>
-                <div class="input-group mb-3">
-                    <input type="text" id="messageInput" class="form-control" value="Hello"/>
-                    <div class="input-group-append">
-                        <button id="sendButton" class="btn btn-primary btn-block">Send</button>
-                    </div>
-                </div>
-                <hr>
-                <button id="disconnectButton" class="btn btn-info btn-block">Disconnect</button>
-            </div>
-
         </div>
-        <script type="text/javascript" src="cordova.js"></script>
-        <script type="text/javascript" src="js/jquery.min.js"></script>
-        <script type="text/javascript" src="js/bootstrap.min.js"></script>
-        <script type="text/javascript" src="js/index.js"></script>
-        <script defer type="text/javascript"  src="js/fontawesome-all.min.js"></script>
+    </nav>
+
+    <div class="app container-fluid">
+        
+        <div id="mainPage">
+            <iframe src="http://littlesense.org/" width="100%" height="200">
+                    Your browser doesn't support iframes
+            </iframe>
+        </div>
+        
+        <div id="searchPage">
+            <h3>Devices</h3>
+            <ul id="deviceList" class="list-group"></ul>
+            <BR>
+            <p>
+                <button id="refreshButton" class="btn btn-secondary btn-block"><i class="fas fa-sync"></i> Refresh</button>
+                <p id="searchSpinner" class="lead text-center"><i class="fas fa-sync fa-spin"></i> Refreshing..</p>
+                <p id="searchConnect" class="lead text-center"><i class="fas fa-spinner fa-pulse"></i> Connecting...</p>
+        </div>
+        
+
+        <div id="detailPage">
+            <h4>Signal</h4>
+            <div id="bar-signal" class="progress">
+                <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <h4>Volume</h4>
+            <div id="bar-volume" class="progress">
+                <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <h4>Messages</h4>
+            <div id="resultDiv"></div>
+            <div class="input-group mb-3">
+                <input type="text" id="messageInput" class="form-control" value="Hello"/>
+                <div class="input-group-append">
+                    <button id="sendButton" class="btn btn-primary btn-block">Send</button>
+                </div>
+            </div>
+            <hr>
+            <button id="disconnectButton" class="btn btn-info btn-block">Disconnect</button>
+        </div>
+
+    </div>
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/index.js"></script>
+    <script defer type="text/javascript"  src="js/fontawesome-all.min.js"></script>
 
 
-        <script type="text/javascript">
-            app.initialize();
-        </script>
-    </body>
+    <script type="text/javascript">
+        app.initialize();
+    </script>
+</body>
 </html>
