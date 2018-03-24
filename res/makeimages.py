@@ -35,12 +35,12 @@ def process():
             os.remove(save_path)
 
         if cat == "icon":
-            im = Image.open("icon.png")
+            im = Image.open( os.path.join(root_path, "icon.png"))
         elif cat == "splash":
             if w > h:
-                im = Image.open("screen_landscape.png")
+                im = Image.open( os.path.join(root_path, "screen_landscape.png"))
             else:
-                im = Image.open("screen_portrait.png")
+                im = Image.open( os.path.join(root_path, "screen_portrait.png"))
         else:
             raise Exception('Unknown cat')
             
