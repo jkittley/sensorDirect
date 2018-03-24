@@ -5,6 +5,7 @@ platforms/android/
 *.xcuserdatad
 plugins/
 hooks/
-
+res/icons/
+res/screen/
 node_modules/
 resources/signing

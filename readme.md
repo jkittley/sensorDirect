@@ -13,6 +13,7 @@ cordova platform add ios
 cordova plugin add cordova-plugin-inappbrowser
 cordova plugin add cordova-plugin-ble-central
 cordova plugin add cordova-plugin-dialogs
+cordova plugin add cordova-plugin-splashscreen
 ```
 
 Now copy the conents of this repository to the root of the newly created app. This will overwrite all the nessesary parts.
