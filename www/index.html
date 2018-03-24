@@ -44,7 +44,7 @@
         <div class="app container-fluid">
             
             <div id="mainPage">
-                <iframe src="http://example.com/" width="200" height="100">
+                <iframe src="https://cordova.apache.org" width="200" height="100">
                         Your browser doesn't support iframes
                 </iframe>
              
@@ -54,10 +54,11 @@
             <div id="searchPage">
                 <h3>Devices</h3>
                 <ul id="deviceList" class="list-group"></ul>
+                <BR>
                 <p>
-                    <button id="refreshButton" class="btn btn-primary btn-block">Refresh</button>
-                    <button id="searchSpinner" class="btn btn-primary btn-block" disabled><i class="fas fa-sync fa-spin"> Refreshing...</i>
-                </p>
+                    <button id="refreshButton" class="btn btn-secondary btn-block"><i class="fas fa-sync"></i> Refresh</button>
+                    <p id="searchSpinner" class="lead text-center"><i class="fas fa-sync fa-spin"></i> Refreshing..</p>
+                    <p id="searchConnect" class="lead text-center"><i class="fas fa-spinner fa-pulse"></i> Connecting...</p>
             </div>
             
 

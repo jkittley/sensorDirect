@@ -36,7 +36,7 @@ var app = {
         document.addEventListener('deviceready', this.onDeviceReady, false);
         refreshButton.addEventListener('touchstart', this.refreshDeviceList, false);
         disconnectButton.addEventListener('touchend', this.disconnect, false);
-        deviceList.addEventListener('touchend', this.connect, false); // assume not scrolling
+        deviceList.addEventListener('touchstart', this.connect, false); // assume not scrolling
         goHome.addEventListener('touchstart', this.showMainPage, false); 
         directConnect.addEventListener('touchstart', this.showSearchPage, false); 
         openBrowser.addEventListener('touchstart', this.showBrowser, false);
@@ -51,6 +51,7 @@ var app = {
         device_list = [];
         searchSpinner.hidden = false;
         refreshButton.hidden = true;
+        searchConnect.hidden = true;
         deviceList.innerHTML = ''; // empties the list
         // scan for all devices
         ble.scan([], 5, app.onDiscoverDevice, app.onError);
@@ -61,6 +62,7 @@ var app = {
                     console.log("Scan complete"); 
                     searchSpinner.hidden = true;
                     refreshButton.hidden = false;
+                    $('.device-item').removeClass('disabled');
                 },
                 function() { console.log("stopScan failed"); }
             );
@@ -82,11 +84,12 @@ var app = {
             .addClass("list-group-item ")
             .addClass("justify-content-between")
             .addClass("align-items-center")
+            .addClass("disabled")
             .append(badge);
 
         lielm.data("device-id", device.id); 
 
-        if (device_list.indexOf(device.id) < 0) {
+        if (device.name !== undefined && device_list.indexOf(device.id) < 0) {
             device_list.push(device.id);
             $("#deviceList").append(lielm);
         }
@@ -94,23 +97,35 @@ var app = {
 
     connect: function(e) {
         var target = $(e.target);
-        var deviceId = null;
         console.log(target);
-        if (target.is( "li.device-item" )) {
-            deviceId = target.data('device-id');
-        } else {
-            deviceId = target.closest('li.device-item').data('device-id');
+
+        if (!target.is( "li.device-item" )) {
+            target = target.closest('li.device-item');
         }
-        console.log(deviceId);
+
+        deviceId = target.data('device-id');
+        target.addClass('active');
+        refreshButton.hidden = true;
+        
         is_connected = true;
         connected_device = deviceId;
-
+        searchConnect.hidden = false;
+       
         onConnect = function(peripheral) {
-            app.determineWriteType(peripheral);
-            // subscribe for incoming data
-            ble.startNotification(deviceId, bluefruit.serviceUUID, bluefruit.rxCharacteristic, app.onData, app.onError);
-            resultDiv.innerHTML = "";
-            app.showDetailPage();
+            try {
+                app.determineWriteType(peripheral);
+                // subscribe for incoming data
+                ble.startNotification(deviceId, bluefruit.serviceUUID, bluefruit.rxCharacteristic, app.onData, app.onError);
+                resultDiv.innerHTML = "";
+                app.showDetailPage();
+            } catch (error) {
+                error.errorDescription = "Failed to connect. Device may not be a compatable sensor.";
+                app.onError(error);
+            } finally {
+                target.removeClass('active');
+                refreshButton.hidden = false;
+                searchConnect.hidden = true;
+            }
         };
 
         if (deviceId !== null) ble.connect(deviceId, onConnect, app.onError);
@@ -199,7 +214,9 @@ var app = {
         mainPage.hidden = true;
         detailPage.hidden = true;
         searchPage.hidden = false;
-        app.refreshDeviceList();
+        searchConnect.hidden = true;
+        if (device_list.length == 0) app.refreshDeviceList();
+        $('.device-item').removeClass('active');
     },
 
     showDetailPage: function() {
@@ -237,11 +254,22 @@ var app = {
     },
 
     onError: function(err) {
+        console.log(err);
+        var errorMsg = "Unknown error";
+        if ('errorDescription' in err) {
+            errorMsg = err.errorDescription;
+        } else if ('name' in err) {
+            errorMsg = err.name;
+        } 
         is_connected = false;
         connected_device = null;
-        alert(err.errorDescription); // real apps should use notification.alert
-        console.log(err);
-        app.showMainPage();
+        navigator.notification.alert(
+            errorMsg,  // message
+            app.showSearchPage,    // callback
+            'Error',               // title
+            'Done'                 // buttonName
+        );
+        // alert(err.errorDescription); // real apps should use notification.alert
     }
 
 };

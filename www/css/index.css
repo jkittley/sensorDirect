@@ -16,3 +16,11 @@ nav {
     border-width: 1px;
     border-style: solid;
 }
+
+.device-item.disabled {
+    color: #eee;
+}
+
+.device-item.disabled span {
+    background-color: #f0f0ff;
+}
