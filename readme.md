@@ -2,7 +2,7 @@
 This is a simple Cordova app desigend to talk to Adafruit Bluefruit devices via UART. To set the project up do the following:
 
 ## Build App
-Forllow the instructions at https://cordova.apache.org/#getstarted to setup Cordova on your platform.
+1. Follow the instructions at https://cordova.apache.org/#getstarted to setup Cordova on your platform.
 
 ```
 cordova create sensordirect com.kittley.sensordirect SensorDirect
@@ -16,15 +16,17 @@ cordova plugin add cordova-plugin-dialogs
 cordova plugin add cordova-plugin-splashscreen
 ```
 
-Now copy the conents of this repository to the root of the newly created app. This will overwrite all the nessesary parts.
+2. Copy the conents of this repository to the root of the newly created app. This will overwrite all the nessesary parts.
 
-Now run `cordova build ios`
+3. Create the images for splash screens and icons `python res/makeimages.py`
 
-Now open the xcode project `open ./platforms/ios/SensorDirect.xcworkspace`
+4. Build for IOS `cordova build ios`
 
-Sign the project.
+5. Now open the XCode project `open ./platforms/ios/SensorDirect.xcworkspace`
 
-Build it to a device.
+6. Sign the project.
+
+7. Use Xcode to deploy to a device.
 
 ## Adafruit Feather
 
