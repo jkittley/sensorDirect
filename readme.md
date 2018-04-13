@@ -6,27 +6,49 @@ This is a simple Cordova app desigend to talk to Adafruit Bluefruit devices via 
 
 ```
 cordova create sensordirect com.kittley.sensordirect SensorDirect
-cordova requirements
-brew install gradle
 cordova platform add android
 cordova platform add ios
+```
+2. We need to install Grade
+
+### For Mac
+2.1. On mac you may need to run ```brew install gradle```
+
+### For Linux
+2.1. Follow these [instruction to install gradle](http://exponential.io/blog/2015/03/30/install-gradle-on-ubuntu-linux/). 
+
+2.2 Replace the ```path/to/android/sdk/tools``` with the contents of this [zip](https://dl.google.com/android/repository/tools_r25.2.3-linux.zip)
+
+### For all
+3. Now check the reuirements are met:
+
+```
+cordova requirements
+```
+
+4. Install the plugins
+
+```
 cordova plugin add cordova-plugin-inappbrowser
 cordova plugin add cordova-plugin-ble-central
 cordova plugin add cordova-plugin-dialogs
 cordova plugin add cordova-plugin-splashscreen
 ```
 
-2. Copy the conents of this repository to the root of the newly created app. This will overwrite all the nessesary parts.
+5. Copy the conents of this repository to the root of the newly created app. This will overwrite all the nessesary parts.
 
-3. Create the images for splash screens and icons `python res/makeimages.py`
+6. Create the images for splash screens and icons `python res/makeimages.py`
 
-4. Build for IOS `cordova build ios`
+### Build for IOS 
 
-5. Now open the XCode project `open ./platforms/ios/SensorDirect.xcworkspace`
+7. Run: `cordova build ios` 
+7.2. Open the XCode project `open ./platforms/ios/SensorDirect.xcworkspace`
+7.3 Sign the project.
+7.4 Use Xcode to deploy to a device.
 
-6. Sign the project.
-
-7. Use Xcode to deploy to a device.
+## Android 
+7. Run `cordova build android` 
+7.2. Run `cordova run android` to deploy to the emulator or connected device
 
 ## Adafruit Feather
 
