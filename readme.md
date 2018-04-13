@@ -46,7 +46,7 @@ cordova plugin add cordova-plugin-splashscreen
 7.3 Sign the project.
 7.4 Use Xcode to deploy to a device.
 
-## Android 
+### Build for Android 
 7. Run `cordova build android` 
 7.2. Run `cordova run android` to deploy to the emulator or connected device
 
