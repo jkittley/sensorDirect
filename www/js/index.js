@@ -44,7 +44,16 @@ var app = {
     },
 
     onDeviceReady: function() {
-      
+
+        $( "#mainPage" ).load( "http://raspberrypi.local/", function( response, status, xhr ) {
+            if ( status == "error" ) {
+              $( "#mainPage" ).html("Sorry there was an error: " + msg + xhr.status + " " + xhr.statusText );
+            }
+        });
+
+        // <iframe src="http://192.168.0.101" width="100%" height="200">
+        //             Your browser doesn't support iframes
+        //     </iframe>
     },
 
     refreshIframe: function() {
