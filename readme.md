@@ -1,6 +1,8 @@
 # Sound System - App
 This repository is part of a larger project which brings together Raspberry PI's, SDStore, Arduino style microcontrollers, Smart phones, BLE and RFM69 radios, to create a sound level monitoring local area sensor network. In this repository you will find the code for a Cordova cross platform app. The app is designed to communicate with nodes on an RFM69 radio network via BLE. A [BLE to RFM69 Gateway Node](https://github.com/jkittley/soundsystem-hardware/tree/master/rfm69_ble) is required. For more information see kittley.com.
 
+![App Screenshot](_res/app.png)
+
 ## Build App
 1. Follow the instructions at https://cordova.apache.org/#getstarted to setup Cordova on your platform.
 
