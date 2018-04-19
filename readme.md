@@ -1,57 +1,50 @@
 # Sound System - App
-This is a simple Cordova app desigend to talk to Adafruit Bluefruit devices via UART. To set the project up do the following:
+This repository is part of a larger project which brings together Raspberry PI's, SDStore, Arduino style microcontrollers, Smart phones, BLE and RFM69 radios, to create a sound level monitoring local area sensor network. In this repository you will find the code for a Cordova cross platform app. The app is designed to communicate with nodes on an RFM69 radio network via BLE. A [BLE to RFM69 Gateway Node](https://github.com/jkittley/soundsystem-hardware/tree/master/rfm69_ble) is required. For more information see kittley.com.
 
 ## Build App
 1. Follow the instructions at https://cordova.apache.org/#getstarted to setup Cordova on your platform.
 
+2. Clone this repository to your local machine and open the folder.
+
 ```
-cordova create sensordirect com.kittley.sensordirect SensorDirect
+git clone https://github.com/jkittley/soundsystem-app.git
+
+cd soundsystem-app
+```
+
+3. Add the platform you want to deploy to i.e. Android or iOS.
+
+```
 cordova platform add android
 cordova platform add ios
 ```
-2. We need to install Grade
 
-### For Mac
-2.1. On mac you may need to run ```brew install gradle```
-
-### For Linux
-2.1. Follow these [instruction to install gradle](http://exponential.io/blog/2015/03/30/install-gradle-on-ubuntu-linux/). 
-
-2.2 Replace the ```path/to/android/sdk/tools``` with the contents of this [zip](https://dl.google.com/android/repository/tools_r25.2.3-linux.zip)
-
-### For all
-3. Now check the reuirements are met:
+4. Check you have all the requirements you need to build the app.
 
 ```
 cordova requirements
 ```
 
-4. Install the plugins
+5. You may need to install Grade:
 
-```
-cordova plugin add cordova-plugin-inappbrowser
-cordova plugin add cordova-plugin-ble-central
-cordova plugin add cordova-plugin-dialogs
-cordova plugin add cordova-plugin-splashscreen
-```
+    ***MacOS***: On mac you may need to run ```brew install gradle```
 
-5. Copy the conents of this repository to the root of the newly created app. This will overwrite all the nessesary parts.
+    ***Linux***: Follow these [instruction to install gradle](http://exponential.io/blog/2015/03/30/install-gradle-on-ubuntu-linux/) and then replace the ```path/to/android/sdk/tools``` with the contents of this [zip](https://dl.google.com/android/repository/tools_r25.2.3-linux.zip)
 
-6. Create the images for splash screens and icons `python res/makeimages.py`
 
 ### Build for IOS 
 
-7. Run: `cordova build ios` 
-7.2. Open the XCode project `open ./platforms/ios/SensorDirect.xcworkspace`
-7.3 Sign the project.
-7.4 Use Xcode to deploy to a device.
+1. Run: `cordova build ios` 
+
+2. Open the XCode project `open ./platforms/ios/SensorDirect.xcworkspace`
+
+3. Sign the project.
+
+4. Use Xcode to deploy to a device.
 
 ### Build for Android 
-7. Run `cordova build android` 
-7.2. Run `cordova run android` to deploy to the emulator or connected device
 
-## Adafruit Feather
+1. Run `cordova build android` 
 
-Open  `_hardware/bleuart.ino` and upload to the feather.
-Open the serial monitor and send messages.
-Messages with the format `data=z,y,z` will be processed as a comma seporated list. Always end with a `,null` to prevent erronious charictors in the last value.
+2. Run `cordova run android` to deploy to the emulator or connected device
+
