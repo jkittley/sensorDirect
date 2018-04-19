@@ -1,4 +1,4 @@
-# Sensor Direct
+# Sensor System - App
 This is a simple Cordova app desigend to talk to Adafruit Bluefruit devices via UART. To set the project up do the following:
 
 ## Build App
