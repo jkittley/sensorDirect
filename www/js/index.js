@@ -38,22 +38,58 @@ var app = {
         disconnectButton.addEventListener('touchend', this.disconnect, false);
         deviceList.addEventListener('touchstart', this.connect, false); // assume not scrolling
         goHome.addEventListener('touchstart', this.showMainPage, false); 
+        
         directConnect.addEventListener('touchstart', this.showSearchPage, false); 
-        refreshBrowser.addEventListener('touchstart', this.refreshIframe, false);
+        openBrowser.addEventListener('touchstart', this.openBrowser, false);
+        directConnectImg.addEventListener('touchstart', this.showSearchPage, false); 
+        openBrowserImg.addEventListener('touchstart', this.openBrowser, false);
+
         sendButton.addEventListener('click', this.sendData, false);
+        setDataViewerURL.addEventListener('click', this.setDataViewerURL, false);
     },
 
+    
     onDeviceReady: function() {
+        // Check if URL is set
+        if (window.localStorage.getItem('data_view_url')===null) app.setDataViewerURL();
+    },
 
-        $( "#mainPage" ).load( "http://raspberrypi.local/", function( response, status, xhr ) {
-            if ( status == "error" ) {
-              $( "#mainPage" ).html("Sorry there was an error: " + msg + xhr.status + " " + xhr.statusText );
+    setDataViewerURL: function() {
+        var storage = window.localStorage;
+        var promptCallback = function(results) {
+            if (results.buttonIndex === 1) {
+                storage.setItem('data_view_url', results.input1);
             }
-        });
+        };
+        var defaultValue = storage.getItem('data_view_url')===null ? 'http://192.168.1.104/' : storage.getItem('data_view_url');
+        navigator.notification.prompt("Please set the server URL", promptCallback, 'Server URL', ['Save', 'Cancel'], defaultValue);
+    },
 
-        // <iframe src="http://192.168.0.101" width="100%" height="200">
-        //             Your browser doesn't support iframes
-        //     </iframe>
+    openBrowser: function() {
+
+        var storage = window.localStorage;
+        var url = storage.getItem('data_view_url') + '?device=tablet'; 
+
+        var win = cordova.InAppBrowser.open(url, '_blank', 'location=no');
+        win.addEventListener( "loaderror", function(params) {          
+            win.close();
+            //alert("Unable to connect to server");
+        });
+        win.addEventListener('loadstop', function(event) {        
+            if (event.url.match("#close")) {
+                win.close();
+                return;
+            }
+            // Check the loaded page is the soundsystem raspberry pi and not an error
+            // To do this we inject a small script to check if a window var has been defined.
+            var code = "(function(x) { if (window.appTag===undefined) return 'no'; else return 'yes'; })(window);";
+            win.executeScript({ code: code }, function(appTagDetected) {
+                if(appTagDetected == 'no') {
+                    alert("Unable to load server: No App tag"); 
+                    win.close();
+                 }
+            });
+        });
     },
 
     refreshIframe: function() {

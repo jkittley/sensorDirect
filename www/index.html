@@ -29,27 +29,50 @@
     </head>
     <body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #ec68b9;">
+    <nav class="navbar navbar-expand navbar-dark" style="background-color: #ec68b9;">
         <a id="goHome" class="navbar-brand" href="#"><i class="fas fa-home"></i></a>
         <button class="navbar-toggler bg-default" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a id="directConnect" class="nav-link" href="#"><i class="fab fa-bluetooth"></i> Connect</a>
-                </li>
-                <li class="nav-item active">
-                    <a id="refreshBrowser" class="nav-link" href="#"><i class="fas fa-sync"></i> Refresh</a>
-                </li>
-            </ul>
-        </div>
+        <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <ul class="navbar-nav ml-auto">
+                  <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Settings
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+                      <a id="setDataViewerURL" class="dropdown-item" href="#">Set Server URL</a>
+                    </div>
+                  </li>
+                </ul>
+              </div>
     </nav>
 
     <div class="app container-fluid">
         
         <div id="mainPage">
-            <h1><i class="fas fa-sync fa-spin"></i> Loading</h1>
+            <div class="row">
+                <div class="col-6">
+                    <div class="card">
+                        <img id="directConnectImg" class="card-img-top" src="img/settings.png" alt="Settings">
+                        <div class="card-body">
+                            <p class="card-text">Add a new sensor or configure and existing sensor.</p>
+                            <a id="directConnect" class="btn btn-primary btn-lg btn-block" href="#"><i class="fab fa-bluetooth"></i> Connect Sensor </a> 
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="card">
+                        <img id="openBrowserImg" class="card-img-top" src="img/plot.png" alt="View Data">
+                        <div class="card-body">
+                            <p class="card-text">Monitor the data returned your sensors</p>
+                            <a id="openBrowser" class="btn btn-primary btn-lg btn-block" href="#"><i class="fas fa-chart-bar"></i> View Data</a>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
         </div>
         
         <div id="searchPage">
@@ -90,8 +113,6 @@
     <script type="text/javascript" src="js/bootstrap.min.js"></script>
     <script type="text/javascript" src="js/index.js"></script>
     <script defer type="text/javascript"  src="js/fontawesome-all.min.js"></script>
-
-
     <script type="text/javascript">
         app.initialize();
     </script>
