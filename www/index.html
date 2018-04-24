@@ -76,35 +76,56 @@
         </div>
         
         <div id="searchPage">
-            <h3>Devices</h3>
+            <h3>Searching for interface...</h3>
             <ul id="deviceList" class="list-group"></ul>
             <BR>
             <p>
-                <button id="refreshButton" class="btn btn-secondary btn-block"><i class="fas fa-sync"></i> Refresh</button>
-                <p id="searchSpinner" class="lead text-center"><i class="fas fa-sync fa-spin"></i> Refreshing..</p>
-                <p id="searchConnect" class="lead text-center"><i class="fas fa-spinner fa-pulse"></i> Connecting...</p>
+                <button id="refreshButton" class="btn btn-secondary btn-block"><i class="fas fa-sync"></i> Scan Again</button>
+                <p id="searchSpinner" class="lead text-center d-none"><i class="fas fa-sync fa-spin"></i> Refreshing...</p>
+                <p id="searchConnect" class="lead text-center d-none"><i class="fas fa-spinner fa-pulse"></i> Connecting...</p>
         </div>
         
 
         <div id="detailPage">
-            <h4>Signal</h4>
-            <div id="bar-signal" class="progress">
-                <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-            </div>
-            <h4>Volume</h4>
-            <div id="bar-volume" class="progress">
-                <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-            </div>
-            <h4>Messages</h4>
-            <div id="resultDiv"></div>
-            <div class="input-group mb-3">
-                <input type="text" id="messageInput" class="form-control" value="Hello"/>
-                <div class="input-group-append">
-                    <button id="sendButton" class="btn btn-primary btn-block">Send</button>
+            <div class="row mb-4">
+                <div class="col-6">
+                    <div class="card">
+                        <div class="card-header">Signal</div>
+                        <div class="card-body">
+                            <img id="bar-signal" src="img/signal_0.svg" class="data_image">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                        <div class="card">
+                            <div class="card-header">Volume</div>
+                            <div class="card-body">
+                                <img id="bar-volume" src="img/volume_0.svg" class="data_image">
+                        </div>
+                    </div>
                 </div>
             </div>
-            <hr>
-            <button id="disconnectButton" class="btn btn-info btn-block">Disconnect</button>
+
+            <div class="row mb-4">
+                <div class="col-10">
+                    <button id="disconnectButton" class="btn btn-info btn-block">Disconnect</button>
+                </div>
+                <div class="col-2">
+                    <button class="btn btn-default btn-block" type="button" data-toggle="collapse" data-target="#collapseDebug" aria-expanded="false" aria-controls="collapseDebug">Debug</button>
+                </div>
+            </div>
+            
+            <div class="collapse" id="collapseDebug">
+                <h4>Debug Console</h4>
+                <div id="resultDiv"></div>
+                <div class="input-group mb-3">
+                    <input type="text" id="messageInput" class="form-control" value="Hello"/>
+                    <div class="input-group-append">
+                        <button id="sendButton" class="btn btn-primary btn-block">Send</button>
+                    </div>
+                </div>
+            </div>
+            
         </div>
 
     </div>

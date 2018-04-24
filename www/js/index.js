@@ -14,17 +14,19 @@ function stringToBytes(string) {
 }
 
 // this is Nordic's UART service
-var bluefruit = {
-    serviceUUID: '6e400001-b5a3-f393-e0a9-e50e24dcca9e',
-    txCharacteristic: '6e400002-b5a3-f393-e0a9-e50e24dcca9e', // transmit is from the phone's perspective
-    rxCharacteristic: '6e400003-b5a3-f393-e0a9-e50e24dcca9e'  // receive is from the phone's perspective
-};
 
-var is_connected = false;
-var connected_device = null;
-var device_list = [];
+
 
 var app = {
+
+    is_connected: false,
+    connected_device: null,
+    device_list: [],
+    bluefruit: {
+        serviceUUID: '6e400001-b5a3-f393-e0a9-e50e24dcca9e',
+        txCharacteristic: '6e400002-b5a3-f393-e0a9-e50e24dcca9e', // transmit is from the phone's perspective
+        rxCharacteristic: '6e400003-b5a3-f393-e0a9-e50e24dcca9e'  // receive is from the phone's perspective
+    },
 
     initialize: function() {
         this.bindEvents();
@@ -36,14 +38,12 @@ var app = {
         document.addEventListener('deviceready', this.onDeviceReady, false);
         refreshButton.addEventListener('touchstart', this.refreshDeviceList, false);
         disconnectButton.addEventListener('touchend', this.disconnect, false);
-        deviceList.addEventListener('touchstart', this.connect, false); // assume not scrolling
+        // deviceList.addEventListener('touchstart', this.connect, false); // assume not scrolling
         goHome.addEventListener('touchstart', this.showMainPage, false); 
-        
         directConnect.addEventListener('touchstart', this.showSearchPage, false); 
         openBrowser.addEventListener('touchstart', this.openBrowser, false);
         directConnectImg.addEventListener('touchstart', this.showSearchPage, false); 
         openBrowserImg.addEventListener('touchstart', this.openBrowser, false);
-
         sendButton.addEventListener('click', this.sendData, false);
         setDataViewerURL.addEventListener('click', this.setDataViewerURL, false);
     },
@@ -66,10 +66,8 @@ var app = {
     },
 
     openBrowser: function() {
-
         var storage = window.localStorage;
         var url = storage.getItem('data_view_url') + '?device=tablet'; 
-
         var win = cordova.InAppBrowser.open(url, '_blank', 'location=no');
         win.addEventListener( "loaderror", function(params) {          
             win.close();
@@ -92,31 +90,34 @@ var app = {
         });
     },
 
-    refreshIframe: function() {
-        $('#mainPage iframe').attr("src", $('#mainPage iframe').attr("src"));
-    },
 
-    refreshDeviceList: function() {
-        device_list = [];
+    scanForRelay: function() {
+        app.device_list = [];
         searchSpinner.hidden = false;
         refreshButton.hidden = true;
         searchConnect.hidden = true;
         deviceList.innerHTML = ''; // empties the list
         // scan for all devices
         ble.scan([], 5, app.onDiscoverDevice, app.onError);
-        // Stop Scan
-        setTimeout(function() {
-            ble.stopScan(
-                function() { 
-                    console.log("Scan complete"); 
+        // Stop Scan after 5 seconds if nothing found
+        setTimeout(app.stopRelayScan, 5000);    
+    },
+
+    stopRelayScan: function(allowSearchAgain=true, cb=null) {
+        ble.stopScan(
+            function() { 
+                console.log("Scan complete"); 
+                if (allowSearchAgain===true) {
                     searchSpinner.hidden = true;
                     refreshButton.hidden = false;
                     $('.device-item').removeClass('disabled');
-                },
-                function() { console.log("stopScan failed"); }
-            );
-        }, 5000);
-
+                }
+                if (cb !==null) cb();
+            },
+            function() { 
+                alert("Scan stop failed");
+            }
+        );
     },
 
     onDiscoverDevice: function(device) {
@@ -138,40 +139,49 @@ var app = {
 
         lielm.data("device-id", device.id); 
 
-        if (device.name !== undefined && device_list.indexOf(device.id) < 0) {
-            device_list.push(device.id);
+        if (device.name !== undefined && app.device_list.indexOf(device.id) < 0) {
+            app.device_list.push(device.id);
             $("#deviceList").append(lielm);
+
+            // Auto connect
+            if (device.name.includes("Adafruit Bluefruit")) {
+                searchSpinner.hidden = true;
+                searchConnect.hidden = false;
+                app.stopRelayScan(false, function() {  
+                    app.connectToRelay(device.id);
+                });
+            }
         }
     },
 
-    connect: function(e) {
-        var target = $(e.target);
-        console.log(target);
+    // connect: function(e) {
+    //     var target = $(e.target);
+    //     console.log(target);
+    //     if (!target.is( "li.device-item" )) {
+    //         target = target.closest('li.device-item');
+    //     }
+    //     deviceId = target.data('device-id');
+    //     target.addClass('active');
+    //     refreshButton.hidden = true;
+    //     app.connectToRelay(deviceId);
+    //     target.removeClass('active');
+    // },
 
-        if (!target.is( "li.device-item" )) {
-            target = target.closest('li.device-item');
-        }
-
-        deviceId = target.data('device-id');
-        target.addClass('active');
-        refreshButton.hidden = true;
-        
-        is_connected = true;
-        connected_device = deviceId;
-        searchConnect.hidden = false;
-       
+    connectToRelay: function(deviceId) {
+        $('#searchPage h3').html('Connecting...');
+        app.is_connected = true;
+        app.connected_device = deviceId;
         onConnect = function(peripheral) {
             try {
                 app.determineWriteType(peripheral);
                 // subscribe for incoming data
-                ble.startNotification(deviceId, bluefruit.serviceUUID, bluefruit.rxCharacteristic, app.onData, app.onError);
+                ble.startNotification(deviceId, app.bluefruit.serviceUUID, app.bluefruit.rxCharacteristic, app.onData, app.onError);
                 resultDiv.innerHTML = "";
                 app.showDetailPage();
             } catch (error) {
                 error.errorDescription = "Failed to connect. Device may not be a compatable sensor.";
                 app.onError(error);
             } finally {
-                target.removeClass('active');
                 refreshButton.hidden = false;
                 searchConnect.hidden = true;
             }
@@ -184,7 +194,7 @@ var app = {
         // Adafruit nRF8001 breakout uses WriteWithoutResponse for the TX characteristic
         // Newer Bluefruit devices use Write Request for the TX characteristic
         var characteristic = peripheral.characteristics.filter(function(element) {
-            if (element.characteristic.toLowerCase() === bluefruit.txCharacteristic) {
+            if (element.characteristic.toLowerCase() === app.bluefruit.txCharacteristic) {
                 return element;
             }
         })[0];
@@ -206,8 +216,10 @@ var app = {
         if (asString.startsWith('data=')) {
             var chunks = asString.replace('data=','').split(',');
             console.log(chunks);
-            $('#bar-signal .progress-bar').css("width", chunks[0]).prop("aria-valuenow", chunks[0]).html(chunks[0]); 
-            $('#bar-volume .progress-bar').css("width", chunks[1]).prop("aria-valuenow", chunks[1]).html(chunks[1]); 
+            $('#bar-signal').attr('src', 'img/signal_'+chunks[1]+'.svg');
+            $('#bar-volume').attr('src', 'img/volume_'+chunks[1]+'.svg');
+            // $('#bar-signal .progress-bar').css("width", chunks[0]).prop("aria-valuenow", chunks[0]).html(chunks[0]); 
+            // $('#bar-volume .progress-bar').css("width", chunks[1]).prop("aria-valuenow", chunks[1]).html(chunks[1]); 
         }
     },
 
@@ -224,20 +236,20 @@ var app = {
         };
 
         var data = stringToBytes(messageInput.value);
-        var deviceId = connected_device;
+        var deviceId = app.connected_device;
 
         if (app.writeWithoutResponse) {
             ble.writeWithoutResponse(
                 deviceId,
-                bluefruit.serviceUUID,
-                bluefruit.txCharacteristic,
+                app.bluefruit.serviceUUID,
+                app.bluefruit.txCharacteristic,
                 data, success, failure
             );
         } else {
             ble.write(
                 deviceId,
-                bluefruit.serviceUUID,
-                bluefruit.txCharacteristic,
+                app.bluefruit.serviceUUID,
+                app.bluefruit.txCharacteristic,
                 data, success, failure
             );
         }
@@ -246,38 +258,39 @@ var app = {
 
     disconnect: function(event) {
         console.log("Disconnecting");
-        ble.disconnect(connected_device, app.showMainPage, app.onError);
-        is_connected = false;
-        connected_device = null;
+        ble.disconnect(app.connected_device, app.showMainPage, app.onError);
+        app.is_connected = false;
+        app.connected_device = null;
     },
 
     showMainPage: function() {
-        if (is_connected) { app.disconnect(); }
+        if (app.is_connected) { app.disconnect(); }
         mainPage.hidden = false;
         detailPage.hidden = true;
         searchPage.hidden = true;
-        refreshBrowser.hidden = false;
-        directConnect.hidden = false;
     },
 
     showSearchPage: function() {
-        if (is_connected) { app.disconnect(); }
-        mainPage.hidden = true;
-        detailPage.hidden = true;
-        searchPage.hidden = false;
-        searchConnect.hidden = true;
-        refreshBrowser.hidden = true;
-        directConnect.hidden = true;
-        if (device_list.length == 0) app.refreshDeviceList();
-        $('.device-item').removeClass('active');
+        ble.isEnabled(
+            function() {
+                if (app.is_connected) { app.disconnect(); }
+                mainPage.hidden = true;
+                detailPage.hidden = true;
+                searchPage.hidden = false;
+                searchConnect.hidden = true;
+                app.scanForRelay();
+            },
+            function() {
+                console.log("Bluetooth is NOT enabled");
+                navigator.notification.alert("Bluetooth is NOT enabled! Please turn it on and try again.", app.showMainPage);
+            }
+        );
     },
 
     showDetailPage: function() {
         mainPage.hidden = true;
         detailPage.hidden = false;
         searchPage.hidden = true;
-        refreshBrowser.hidden = true;
-        directConnect.hidden = true;
     },
    
     showBrowser: function() {
@@ -316,8 +329,8 @@ var app = {
         } else if ('name' in err) {
             errorMsg = err.name;
         } 
-        is_connected = false;
-        connected_device = null;
+        app.is_connected = false;
+        app.connected_device = null;
         navigator.notification.alert(
             errorMsg,  // message
             app.showSearchPage,    // callback
