@@ -186,8 +186,12 @@ var app = {
                 searchConnect.hidden = true;
             }
         };
-
-        if (deviceId !== null) ble.connect(deviceId, onConnect, app.onError);
+        onDisconnect = function() {
+            error = {}
+            error.errorDescription = "Lost connection to device.";
+            app.onError(error);
+        };
+        if (deviceId !== null) ble.connect(deviceId, onConnect, onDisconnect);
     },
 
     determineWriteType: function(peripheral) {
@@ -215,9 +219,22 @@ var app = {
 
         if (asString.startsWith('data=')) {
             var chunks = asString.replace('data=','').split(',');
+            var signal = chunks[1];
+
+            var volume = chunks[2];
+            volume = Math.floor(((volume-40)/60) * 5);
+            var battery = chunks[3];
+            battery = Math.floor(battery / 10);
+            var relay_node_battery = chunks[4];
+
+            // resultDiv.innerHTML = resultDiv.innerHTML + "signal: " + signal + "<br/>";
+            // resultDiv.innerHTML = resultDiv.innerHTML + "volume: " + volume + "<br/>";
+            // resultDiv.innerHTML = resultDiv.innerHTML + "battery: " + battery + "<br/>";
+            // resultDiv.scrollTop = resultDiv.scrollHeight;
+
             console.log(chunks);
-            $('#bar-signal').attr('src', 'img/signal_'+chunks[1]+'.svg');
-            $('#bar-volume').attr('src', 'img/volume_'+chunks[1]+'.svg');
+            $('#bar-signal').attr('src', 'img/signal_'+Math.max(0, Math.min(5, signal))+'.svg');
+            $('#bar-volume').attr('src', 'img/volume_'+Math.max(0, Math.min(5, volume))+'.svg');
             // $('#bar-signal .progress-bar').css("width", chunks[0]).prop("aria-valuenow", chunks[0]).html(chunks[0]); 
             // $('#bar-volume .progress-bar').css("width", chunks[1]).prop("aria-valuenow", chunks[1]).html(chunks[1]); 
         }
@@ -288,6 +305,8 @@ var app = {
     },
 
     showDetailPage: function() {
+        $('#bar-signal').attr('src', 'img/signal_0.svg');
+        $('#bar-volume').attr('src', 'img/volume_0.svg');
         mainPage.hidden = true;
         detailPage.hidden = false;
         searchPage.hidden = true;
