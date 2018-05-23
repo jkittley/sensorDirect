@@ -220,19 +220,10 @@ var app = {
         if (asString.startsWith('data=')) {
             var chunks = asString.replace('data=','').split(',');
             var signal = chunks[1];
-
             var volume = chunks[2];
-            volume = Math.floor(((volume-40)/60) * 5);
             var battery = chunks[3];
-            battery = Math.floor(battery / 10);
             var relay_node_battery = chunks[4];
 
-            // resultDiv.innerHTML = resultDiv.innerHTML + "signal: " + signal + "<br/>";
-            // resultDiv.innerHTML = resultDiv.innerHTML + "volume: " + volume + "<br/>";
-            // resultDiv.innerHTML = resultDiv.innerHTML + "battery: " + battery + "<br/>";
-            // resultDiv.scrollTop = resultDiv.scrollHeight;
-
-            console.log(chunks);
             $('#bar-signal').attr('src', 'img/signal_'+Math.max(0, Math.min(5, signal))+'.svg');
             $('#bar-volume').attr('src', 'img/volume_'+Math.max(0, Math.min(5, volume))+'.svg');
             // $('#bar-signal .progress-bar').css("width", chunks[0]).prop("aria-valuenow", chunks[0]).html(chunks[0]); 
