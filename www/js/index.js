@@ -19,6 +19,11 @@ function stringToBytes(string) {
 
 var app = {
 
+    isVirtual: false,
+
+    num_signal_bars: 10,
+    num_volume_bars: 10,
+    
     is_connected: false,
     connected_device: null,
     device_list: [],
@@ -210,24 +215,38 @@ var app = {
         }
     },
 
-    onData: function(data) { // data received from Arduino
-        console.log("NEW DATA");
-        console.log(data);
-        var asString=bytesToString(data);
+    onData: function(data, isBytes=true) { 
+        // Data should be a percentage i.e. 0 to 100 integers only
+        console.log("NEW DATA:", data);
+        console.log("isBytes", isBytes);
+
+        var asString = data;
+        if (isBytes) asString = bytesToString(data);
+
         resultDiv.innerHTML = resultDiv.innerHTML + "Received: " + asString + "<br/>";
         resultDiv.scrollTop = resultDiv.scrollHeight;
 
         if (asString.startsWith('data=')) {
             var chunks = asString.replace('data=','').split(',');
-            var signal = chunks[1];
-            var volume = chunks[2];
-            var battery = chunks[3];
-            var relay_node_battery = chunks[4];
+            var signal = Math.max(0, Math.min(100, chunks[1]));
+            var volume = Math.max(0, Math.min(100, chunks[2]));
+            var battery = Math.max(0, Math.min(100, chunks[3]));
+            var relay_node_battery = Math.max(0, Math.min(100, chunks[4]));
 
-            $('#bar-signal').attr('src', 'img/signal_'+Math.max(0, Math.min(5, signal))+'.svg');
-            $('#bar-volume').attr('src', 'img/volume_'+Math.max(0, Math.min(5, volume))+'.svg');
-            // $('#bar-signal .progress-bar').css("width", chunks[0]).prop("aria-valuenow", chunks[0]).html(chunks[0]); 
-            // $('#bar-volume .progress-bar').css("width", chunks[1]).prop("aria-valuenow", chunks[1]).html(chunks[1]); 
+            var signalBars = Math.round(app.num_signal_bars * (signal / 100));
+            console.log('signalBars', signalBars);
+
+            var volumeBars = Math.round(app.num_volume_bars * (volume / 100));
+            console.log('volumeBars', volumeBars);
+
+            for (var i = 0; i < app.num_signal_bars; i++) {
+                var z = (i < signalBars ? "1" : "0");
+                $('#signal-bar-'+i).attr('src', 'img/v2/bar-'+z+'.svg');
+            }
+            for (var i = 0; i < app.num_volume_bars; i++) {
+                var z = (i < volumeBars ? "1" : "0");
+                $('#volume-bar-'+i).attr('src', 'img/v2/bar-'+z+'.svg');
+            }
         }
     },
 
@@ -279,25 +298,33 @@ var app = {
     },
 
     showSearchPage: function() {
-        ble.isEnabled(
-            function() {
-                if (app.is_connected) { app.disconnect(); }
-                mainPage.hidden = true;
-                detailPage.hidden = true;
-                searchPage.hidden = false;
-                searchConnect.hidden = true;
-                app.scanForRelay();
-            },
-            function() {
-                console.log("Bluetooth is NOT enabled");
-                navigator.notification.alert("Bluetooth is NOT enabled! Please turn it on and try again.", app.showMainPage);
-            }
-        );
+        var resultSuccess = function() {
+            if (app.is_connected) { app.disconnect(); }
+            mainPage.hidden = true;
+            detailPage.hidden = true;
+            searchPage.hidden = false;
+            searchConnect.hidden = true;
+            app.scanForRelay();
+        };
+        var resultFailure = function() {
+            console.log("Bluetooth is NOT enabled");
+            navigator.notification.alert("Bluetooth is NOT enabled! Please turn it on and try again.", app.showMainPage);
+        };
+
+        if (app.isVirtual===true) {
+            app.showDetailPage(); 
+        } else {
+            ble.isEnabled(resultSuccess, resultFailure);
+        }
     },
 
     showDetailPage: function() {
-        $('#bar-signal').attr('src', 'img/signal_0.svg');
-        $('#bar-volume').attr('src', 'img/volume_0.svg');
+        $('#signal-row').html('<div class="col-1 strength-bar"><img src="img/v2/signal-min.svg"></div>');
+        for (var i = 0; i < app.num_signal_bars; i++) $('#signal-row').append('<div class="col-1 strength-bar"><img id="signal-bar-'+i+'" src="img/v2/bar-0.svg"></div>');
+        $('#signal-row').append('<div class="col-1 strength-bar"><img src="img/v2/signal-max.svg"></div>');
+        $('#volume-row').html('<div class="col-1 strength-bar"><img src="img/v2/volume-min.svg"></div>');
+        for (var i = 0; i < app.num_volume_bars; i++) $('#volume-row').append('<div class="col-1 strength-bar"><img id="volume-bar-'+i+'" src="img/v2/bar-0.svg"></div>');
+        $('#volume-row').append('<div class="col-1 strength-bar"><img src="img/v2/volume-max.svg"></div>');
         mainPage.hidden = true;
         detailPage.hidden = false;
         searchPage.hidden = true;

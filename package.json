@@ -2,17 +2,18 @@
   "name": "com.kittley.sensordirect",
   "displayName": "SensorDirect",
   "version": "1.0.0",
-  "description": "A sample Apache Cordova application that responds to the deviceready event.",
+  "description": "Sensor Direct.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Apache Cordova Team",
+  "author": "Jacob Kittley-Davies",
   "license": "Apache-2.0",
   "dependencies": {
     "cordova-android": "^7.0.0",
     "cordova-plugin-ble-central": "^1.1.4",
     "cordova-plugin-compat": "^1.2.0",
+    "cordova-plugin-device": "git+https://github.com/apache/cordova-plugin-device.git",
     "cordova-plugin-dialogs": "^2.0.1",
     "cordova-plugin-inappbrowser": "^2.0.2",
     "cordova-plugin-splashscreen": "^5.0.2",

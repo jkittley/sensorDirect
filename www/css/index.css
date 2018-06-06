@@ -50,3 +50,8 @@ nav {
 .navbar a {
     font-size: 18px;
 }
+
+.strength-bar {
+    padding-left: 5px;
+    padding-right: 5px; 
+}
