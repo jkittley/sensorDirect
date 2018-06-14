@@ -13,10 +13,6 @@ function stringToBytes(string) {
     return array.buffer;
 }
 
-// this is Nordic's UART service
-
-
-
 var app = {
 
     isVirtual: false,
@@ -24,9 +20,11 @@ var app = {
     num_signal_bars: 10,
     num_volume_bars: 10,
     
+    is_connecting: false,
     is_connected: false,
     connected_device: null,
     device_list: [],
+    
     bluefruit: {
         serviceUUID: '6e400001-b5a3-f393-e0a9-e50e24dcca9e',
         txCharacteristic: '6e400002-b5a3-f393-e0a9-e50e24dcca9e', // transmit is from the phone's perspective
@@ -41,7 +39,7 @@ var app = {
 
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
-        refreshButton.addEventListener('touchstart', this.refreshDeviceList, false);
+        refreshButton.addEventListener('touchstart', this.scanForRelay, false);
         disconnectButton.addEventListener('touchend', this.disconnect, false);
         // deviceList.addEventListener('touchstart', this.connect, false); // assume not scrolling
         goHome.addEventListener('touchstart', this.showMainPage, false); 
@@ -95,8 +93,8 @@ var app = {
         });
     },
 
-
     scanForRelay: function() {
+        $('#searchPage h3').html('Scanning...');
         app.device_list = [];
         searchSpinner.hidden = false;
         refreshButton.hidden = true;
@@ -112,9 +110,10 @@ var app = {
         ble.stopScan(
             function() { 
                 console.log("Scan complete"); 
+                $('#searchPage h3').html('Scan complete.');
                 if (allowSearchAgain===true) {
                     searchSpinner.hidden = true;
-                    refreshButton.hidden = false;
+                    if (app.is_connecting===false) refreshButton.hidden = false;
                     $('.device-item').removeClass('disabled');
                 }
                 if (cb !==null) cb();
@@ -153,6 +152,7 @@ var app = {
                 searchSpinner.hidden = true;
                 searchConnect.hidden = false;
                 app.stopRelayScan(false, function() {  
+                    app.is_connecting = true;
                     app.connectToRelay(device.id);
                 });
             }
@@ -173,8 +173,9 @@ var app = {
     // },
 
     connectToRelay: function(deviceId) {
-        $('#searchPage h3').html('Connecting...');
+        $('#searchPage h3').html('Device found, connecting...');
         app.is_connected = true;
+        app.is_connecting = false;
         app.connected_device = deviceId;
         onConnect = function(peripheral) {
             try {
@@ -223,8 +224,9 @@ var app = {
         var asString = data;
         if (isBytes) asString = bytesToString(data);
 
-        resultDiv.innerHTML = resultDiv.innerHTML + "Received: " + asString + "<br/>";
-        resultDiv.scrollTop = resultDiv.scrollHeight;
+        resultDiv.innerHTML = "Received: " + asString + "<br/>";
+        console.log(asString);
+        // resultDiv.scrollTop = resultDiv.scrollHeight;
 
         if (asString.startsWith('data=')) {
             var chunks = asString.replace('data=','').split(',');
