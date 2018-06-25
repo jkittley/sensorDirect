@@ -249,6 +249,14 @@ var app = {
                 var z = (i < volumeBars ? "1" : "0");
                 $('#volume-bar-'+i).attr('src', 'img/v2/bar-'+z+'.svg');
             }
+
+            if (signalBars == 0) app.setDead();
+        }
+    },
+
+    setDead: function() {
+        for (var i = 0; i < app.num_signal_bars; i++) {
+            $('#signal-bar-'+i).attr('src', 'img/v2/bar-red.svg');
         }
     },
 
