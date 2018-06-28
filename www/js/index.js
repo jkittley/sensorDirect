@@ -24,6 +24,10 @@ var app = {
     is_connected: false,
     connected_device: null,
     device_list: [],
+
+    max_age_in_seconds: 20,
+    last_data_received: null,
+    old_data_check: null,
     
     bluefruit: {
         serviceUUID: '6e400001-b5a3-f393-e0a9-e50e24dcca9e',
@@ -196,6 +200,7 @@ var app = {
             error = {}
             error.errorDescription = "Lost connection to device.";
             app.onError(error);
+            app.stopOldDataTest();
         };
         if (deviceId !== null) ble.connect(deviceId, onConnect, onDisconnect);
     },
@@ -216,6 +221,22 @@ var app = {
         }
     },
 
+    startOldDataTest: function(a) {
+        if (app.old_data_check === null) {
+            app.old_data_check = setInterval(function() {
+                if (Date.now() - app.last_data_received > app.max_age_in_seconds * 1000) {
+                    app.stopOldDataTest();
+                    alert("No Data received for "+ app.max_age_in_seconds + " seconds. Is the sensor in configuration mode?");
+                }
+            }, 500);
+        }
+    },
+
+    stopOldDataTest: function(a) {
+        if (app.old_data_check !== null) clearInterval(app.old_data_check);
+        app.old_data_check = null;
+    },
+
     onData: function(data, isBytes=true) { 
         // Data should be a percentage i.e. 0 to 100 integers only
         console.log("NEW DATA:", data);
@@ -223,22 +244,28 @@ var app = {
 
         var asString = data;
         if (isBytes) asString = bytesToString(data);
-
-        resultDiv.innerHTML = "Received: " + asString + "<br/>";
         console.log(asString);
-        // resultDiv.scrollTop = resultDiv.scrollHeight;
+
+        // Old data test - created here so it restarts if node is restarted
+        app.last_data_received = Date.now();
+        console.log('old_data_check', app.old_data_check);
+        app.startOldDataTest();
 
         if (asString.startsWith('data=')) {
             var chunks = asString.replace('data=','').split(',');
-            var signal = Math.max(0, Math.min(100, chunks[1]));
-            var volume = Math.max(0, Math.min(100, chunks[2]));
-            var battery = Math.max(0, Math.min(100, chunks[3]));
-            var relay_node_battery = Math.max(0, Math.min(100, chunks[4]));
 
-            var signalBars = Math.round(app.num_signal_bars * (signal / 100));
+            var sensor_node_battery = Math.max(0, Math.min(100, chunks[0]));
+            var sensor_node_signal = Math.max(0, Math.min(100, chunks[1]));
+            var sensor_node_volume = Math.max(0, Math.min(100, chunks[2]));    
+            var relay_node_battery = Math.max(0, Math.min(100, chunks[3]));
+            
+            resultDiv.innerHTML = "Received: " + asString + "<br/>";
+            console.log([sensor_node_battery, sensor_node_signal, sensor_node_volume, relay_node_battery]);
+
+            var signalBars = Math.round(app.num_signal_bars * (sensor_node_signal / 100));
             console.log('signalBars', signalBars);
 
-            var volumeBars = Math.round(app.num_volume_bars * (volume / 100));
+            var volumeBars = Math.round(app.num_volume_bars * (sensor_node_volume / 100));
             console.log('volumeBars', volumeBars);
 
             for (var i = 0; i < app.num_signal_bars; i++) {
@@ -298,6 +325,7 @@ var app = {
         ble.disconnect(app.connected_device, app.showMainPage, app.onError);
         app.is_connected = false;
         app.connected_device = null;
+        app.stopOldDataTest();
     },
 
     showMainPage: function() {
