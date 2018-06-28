@@ -25,7 +25,7 @@ var app = {
     connected_device: null,
     device_list: [],
 
-    max_age_in_seconds: 20,
+    max_age_in_seconds: 10,
     last_data_received: null,
     old_data_check: null,
     
@@ -226,6 +226,7 @@ var app = {
             app.old_data_check = setInterval(function() {
                 if (Date.now() - app.last_data_received > app.max_age_in_seconds * 1000) {
                     app.stopOldDataTest();
+                    app.setBars(0,0);
                     alert("No Data received for "+ app.max_age_in_seconds + " seconds. Is the sensor in configuration mode?");
                 }
             }, 500);
@@ -268,20 +269,25 @@ var app = {
             var volumeBars = Math.round(app.num_volume_bars * (sensor_node_volume / 100));
             console.log('volumeBars', volumeBars);
 
-            for (var i = 0; i < app.num_signal_bars; i++) {
-                var z = (i < signalBars ? "1" : "0");
-                $('#signal-bar-'+i).attr('src', 'img/v2/bar-'+z+'.svg');
-            }
-            for (var i = 0; i < app.num_volume_bars; i++) {
-                var z = (i < volumeBars ? "1" : "0");
-                $('#volume-bar-'+i).attr('src', 'img/v2/bar-'+z+'.svg');
-            }
+            app.setBars(signalBars, volumeBars);
 
-            if (signalBars == 0) {app.setDead();}
-            else {
+            if (signalBars == 0) { 
+                app.setDead(); 
+            } else {
                 $('#signal-icon1').attr('src', 'img/v2/signal-min.svg');
                 $('#signal-icon2').attr('src', 'img/v2/signal-max.svg');
             }
+        }
+    },
+
+    setBars: function(signalBars, volumeBars) {
+        for (var i = 0; i < app.num_signal_bars; i++) {
+            var z = (i < signalBars ? "1" : "0");
+            $('#signal-bar-'+i).attr('src', 'img/v2/bar-'+z+'.svg');
+        }
+        for (var i = 0; i < app.num_volume_bars; i++) {
+            var z = (i < volumeBars ? "1" : "0");
+            $('#volume-bar-'+i).attr('src', 'img/v2/bar-'+z+'.svg');
         }
     },
 
