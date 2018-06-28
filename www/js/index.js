@@ -277,11 +277,18 @@ var app = {
                 $('#volume-bar-'+i).attr('src', 'img/v2/bar-'+z+'.svg');
             }
 
-            if (signalBars == 0) app.setDead();
+            if (signalBars == 0) {app.setDead();}
+            else {
+                $('#signal-icon1').attr('src', 'img/v2/signal-min.svg');
+                $('#signal-icon2').attr('src', 'img/v2/signal-max.svg');
+            }
         }
     },
 
     setDead: function() {
+        $('#signal-icon2').attr('src', 'img/v2/signal-red.svg');
+        $('#signal-icon1').attr('src', 'img/v2/signal-red.svg');
+        
         for (var i = 0; i < app.num_signal_bars; i++) {
             $('#signal-bar-'+i).attr('src', 'img/v2/bar-red.svg');
         }
@@ -357,9 +364,9 @@ var app = {
     },
 
     showDetailPage: function() {
-        $('#signal-row').html('<div class="col-1 strength-bar"><img src="img/v2/signal-min.svg"></div>');
+        $('#signal-row').html('<div class="col-1 strength-bar"><img id="signal-icon1" src="img/v2/signal-min.svg"></div>');
         for (var i = 0; i < app.num_signal_bars; i++) $('#signal-row').append('<div class="col-1 strength-bar"><img id="signal-bar-'+i+'" src="img/v2/bar-0.svg"></div>');
-        $('#signal-row').append('<div class="col-1 strength-bar"><img src="img/v2/signal-max.svg"></div>');
+        $('#signal-row').append('<div class="col-1 strength-bar"><img id="signal-icon2" src="img/v2/signal-max.svg"></div>');
         $('#volume-row').html('<div class="col-1 strength-bar"><img src="img/v2/volume-min.svg"></div>');
         for (var i = 0; i < app.num_volume_bars; i++) $('#volume-row').append('<div class="col-1 strength-bar"><img id="volume-bar-'+i+'" src="img/v2/bar-0.svg"></div>');
         $('#volume-row').append('<div class="col-1 strength-bar"><img src="img/v2/volume-max.svg"></div>');
