@@ -1,3 +1,8 @@
+html, body, .app {
+    height: 100%;
+    width: 100%;
+}
+
 body {
     font-family: "Helvetica Neue";
     color: #2a2a2a;
@@ -30,19 +35,6 @@ nav {
     background-color: #f0f0ff;
 }
 
-
-#mainPage iframe {
-    position: absolute;
-    top: 58px;
-    left:0;
-    right:0;
-    bottom: 0;
-    overflow-x: hidden;
-    overflow-y: auto;
-    width: 100%;
-    border: 0;
-}
-
 nav {
     z-index: 999999;
 }
@@ -54,4 +46,18 @@ nav {
 .strength-bar {
     padding-left: 5px;
     padding-right: 5px; 
+}
+
+.bottom-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.page {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    margin: 0;
 }

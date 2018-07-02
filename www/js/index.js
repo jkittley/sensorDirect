@@ -25,9 +25,11 @@ var app = {
     connected_device: null,
     device_list: [],
 
-    max_age_in_seconds: 10,
+    max_age_in_seconds: 5,
     last_data_received: null,
     old_data_check: null,
+
+    is_debug: false,
     
     bluefruit: {
         serviceUUID: '6e400001-b5a3-f393-e0a9-e50e24dcca9e',
@@ -52,13 +54,27 @@ var app = {
         directConnectImg.addEventListener('touchstart', this.showSearchPage, false); 
         openBrowserImg.addEventListener('touchstart', this.openBrowser, false);
         sendButton.addEventListener('click', this.sendData, false);
+        // Settings
         setDataViewerURL.addEventListener('click', this.setDataViewerURL, false);
+        setDebugMode.addEventListener('click', this.toggleDebugMode, false);
     },
 
     
     onDeviceReady: function() {
         // Check if URL is set
         if (window.localStorage.getItem('data_view_url')===null) app.setDataViewerURL();
+
+    },
+
+    toggleDebugMode: function () {
+        app.is_debug = !app.is_debug;
+        if (app.is_debug) {
+            $('#setDebugMode').html("Turn Debug Off"); 
+            $('.debug-elem').collapse('show');
+         } else {
+            $('#setDebugMode').html("Turn Debug On");
+            $('.debug-elem').collapse('hide');
+         } 
     },
 
     setDataViewerURL: function() {
@@ -78,7 +94,7 @@ var app = {
         var win = cordova.InAppBrowser.open(url, '_blank', 'location=no');
         win.addEventListener( "loaderror", function(params) {          
             win.close();
-            //alert("Unable to connect to server");
+            //app.myAlert("Unable to connect to server");
         });
         win.addEventListener('loadstop', function(event) {        
             if (event.url.match("#close")) {
@@ -90,7 +106,7 @@ var app = {
             var code = "(function(x) { if (window.appTag===undefined) return 'no'; else return 'yes'; })(window);";
             win.executeScript({ code: code }, function(appTagDetected) {
                 if(appTagDetected == 'no') {
-                    alert("Unable to load server: No App tag"); 
+                    app.myAlert("Unable to load server: No App tag"); 
                     win.close();
                  }
             });
@@ -98,7 +114,7 @@ var app = {
     },
 
     scanForRelay: function() {
-        $('#searchPage h3').html('Scanning...');
+        $('#searchPage .debug').append('<li>Scanning...</li>');
         app.device_list = [];
         searchSpinner.hidden = false;
         refreshButton.hidden = true;
@@ -114,7 +130,12 @@ var app = {
         ble.stopScan(
             function() { 
                 console.log("Scan complete"); 
-                $('#searchPage h3').html('Scan complete.');
+                $('#searchPage .debug').append('<li>Scan complete.</li>');
+
+                if (!app.is_connecting && !app.is_connected) {
+                    app.myAlert("Failed to prepare correctly. (NO-RELAY-FOUND)", "Failed to prepare", "Try Again", app.scanForRelay);
+                }
+
                 if (allowSearchAgain===true) {
                     searchSpinner.hidden = true;
                     if (app.is_connecting===false) refreshButton.hidden = false;
@@ -123,7 +144,7 @@ var app = {
                 if (cb !==null) cb();
             },
             function() { 
-                alert("Scan stop failed");
+                app.myAlert("Scan stop failed");
             }
         );
     },
@@ -155,8 +176,8 @@ var app = {
             if (device.name.includes("Adafruit Bluefruit")) {
                 searchSpinner.hidden = true;
                 searchConnect.hidden = false;
+                app.is_connecting = true;
                 app.stopRelayScan(false, function() {  
-                    app.is_connecting = true;
                     app.connectToRelay(device.id);
                 });
             }
@@ -177,7 +198,7 @@ var app = {
     // },
 
     connectToRelay: function(deviceId) {
-        $('#searchPage h3').html('Device found, connecting...');
+        $('#searchPage .debug').append('<li>Device found, connecting...</li>');
         app.is_connected = true;
         app.is_connecting = false;
         app.connected_device = deviceId;
@@ -187,9 +208,10 @@ var app = {
                 // subscribe for incoming data
                 ble.startNotification(deviceId, app.bluefruit.serviceUUID, app.bluefruit.rxCharacteristic, app.onData, app.onError);
                 resultDiv.innerHTML = "";
+                $('#waiting-message').html('');
                 app.showDetailPage();
             } catch (error) {
-                error.errorDescription = "Failed to connect. Device may not be a compatable sensor.";
+                error.errorDescription = "Failed to connect. Device may not be a compatible sensor.";
                 app.onError(error);
             } finally {
                 refreshButton.hidden = false;
@@ -198,8 +220,8 @@ var app = {
         };
         onDisconnect = function() {
             error = {}
-            error.errorDescription = "Lost connection to device.";
-            app.onError(error);
+            error.errorDescription = "The connection to the sensor was lost (BLE-NO-CONNECT).";
+            app.onError(error, "Try Again", "Connection Error");
             app.stopOldDataTest();
         };
         if (deviceId !== null) ble.connect(deviceId, onConnect, onDisconnect);
@@ -227,7 +249,7 @@ var app = {
                 if (Date.now() - app.last_data_received > app.max_age_in_seconds * 1000) {
                     app.stopOldDataTest();
                     app.setBars(0,0);
-                    alert("No Data received for "+ app.max_age_in_seconds + " seconds. Is the sensor in configuration mode?");
+                    $('#waiting-message').html("No data received for "+ app.max_age_in_seconds + " seconds. Is the sensor in configuration mode?");
                     waitingForData.hidden = false;
                     signalRow.hidden = true;
                     volumeRow.hidden = true;
@@ -281,6 +303,7 @@ var app = {
                 $('#signal-icon2').attr('src', 'img/v2/signal-max.svg');
             }
 
+            $('#waiting-message').html('');
             waitingForData.hidden = true;
             signalRow.hidden = false;
             volumeRow.hidden = false;
@@ -316,7 +339,7 @@ var app = {
         };
 
         var failure = function() {
-            alert("Failed writing data to the bluefruit le");
+            app.myAlert("Failed writing data to the bluefruit le");
         };
 
         var data = stringToBytes(messageInput.value);
@@ -419,7 +442,7 @@ var app = {
         }
     },
 
-    onError: function(err) {
+    onError: function(err, bttname="OK", title="Error") {
         console.log(err);
         var errorMsg = "Unknown error";
         if ('errorDescription' in err) {
@@ -432,10 +455,19 @@ var app = {
         navigator.notification.alert(
             errorMsg,  // message
             app.showSearchPage,    // callback
-            'Error',               // title
-            'Done'                 // buttonName
+            title,               // title
+            bttname                 // buttonName
         );
         // alert(err.errorDescription); // real apps should use notification.alert
+    },
+
+    myAlert: function (message, title="Alert", btnname="Done", cb=null) {
+        navigator.notification.alert(
+            message,  // message
+            cb,    // callback
+            title,               // title
+            btnname                 // buttonName
+        );
     }
 
 };
