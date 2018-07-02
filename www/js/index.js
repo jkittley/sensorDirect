@@ -46,7 +46,7 @@ var app = {
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
         refreshButton.addEventListener('touchstart', this.scanForRelay, false);
-        disconnectButton.addEventListener('touchend', this.disconnect, false);
+        // disconnectButton.addEventListener('touchend', this.disconnect, false);
         // deviceList.addEventListener('touchstart', this.connect, false); // assume not scrolling
         goHome.addEventListener('touchstart', this.showMainPage, false); 
         directConnect.addEventListener('touchstart', this.showSearchPage, false); 
