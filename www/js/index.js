@@ -228,6 +228,9 @@ var app = {
                     app.stopOldDataTest();
                     app.setBars(0,0);
                     alert("No Data received for "+ app.max_age_in_seconds + " seconds. Is the sensor in configuration mode?");
+                    waitingForData.hidden = false;
+                    signalRow.hidden = true;
+                    volumeRow.hidden = true;
                 }
             }, 500);
         }
@@ -277,6 +280,10 @@ var app = {
                 $('#signal-icon1').attr('src', 'img/v2/signal-min.svg');
                 $('#signal-icon2').attr('src', 'img/v2/signal-max.svg');
             }
+
+            waitingForData.hidden = true;
+            signalRow.hidden = false;
+            volumeRow.hidden = false;
         }
     },
 
@@ -370,12 +377,15 @@ var app = {
     },
 
     showDetailPage: function() {
-        $('#signal-row').html('<div class="col-1 strength-bar"><img id="signal-icon1" src="img/v2/signal-min.svg"></div>');
-        for (var i = 0; i < app.num_signal_bars; i++) $('#signal-row').append('<div class="col-1 strength-bar"><img id="signal-bar-'+i+'" src="img/v2/bar-0.svg"></div>');
-        $('#signal-row').append('<div class="col-1 strength-bar"><img id="signal-icon2" src="img/v2/signal-max.svg"></div>');
-        $('#volume-row').html('<div class="col-1 strength-bar"><img src="img/v2/volume-min.svg"></div>');
-        for (var i = 0; i < app.num_volume_bars; i++) $('#volume-row').append('<div class="col-1 strength-bar"><img id="volume-bar-'+i+'" src="img/v2/bar-0.svg"></div>');
-        $('#volume-row').append('<div class="col-1 strength-bar"><img src="img/v2/volume-max.svg"></div>');
+        waitingForData.hidden = false;
+        signalRow.hidden = true;
+        volumeRow.hidden = true;
+        $('#signalRow').html('<div class="col-1 strength-bar"><img id="signal-icon1" src="img/v2/signal-min.svg"></div>');
+        for (var i = 0; i < app.num_signal_bars; i++) $('#signalRow').append('<div class="col-1 strength-bar"><img id="signal-bar-'+i+'" src="img/v2/bar-0.svg"></div>');
+        $('#signalRow').append('<div class="col-1 strength-bar"><img id="signal-icon2" src="img/v2/signal-max.svg"></div>');
+        $('#volumeRow').html('<div class="col-1 strength-bar"><img src="img/v2/volume-min.svg"></div>');
+        for (var i = 0; i < app.num_volume_bars; i++) $('#volumeRow').append('<div class="col-1 strength-bar"><img id="volume-bar-'+i+'" src="img/v2/bar-0.svg"></div>');
+        $('#volumeRow').append('<div class="col-1 strength-bar"><img src="img/v2/volume-max.svg"></div>');
         mainPage.hidden = true;
         detailPage.hidden = false;
         searchPage.hidden = true;
