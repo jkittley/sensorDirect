@@ -207,7 +207,7 @@ var app = {
                 app.determineWriteType(peripheral);
                 // subscribe for incoming data
                 ble.startNotification(deviceId, app.bluefruit.serviceUUID, app.bluefruit.rxCharacteristic, app.onData, app.onError);
-                resultDiv.innerHTML = "";
+                resultD.innerHTML = "";
                 $('#waiting-message').html('');
                 app.showDetailPage();
             } catch (error) {
@@ -271,42 +271,58 @@ var app = {
         var asString = data;
         if (isBytes) asString = bytesToString(data);
         console.log(asString);
+        
 
         // Old data test - created here so it restarts if node is restarted
         app.last_data_received = Date.now();
         console.log('old_data_check', app.old_data_check);
         app.startOldDataTest();
 
-        if (asString.startsWith('data=')) {
-            var chunks = asString.replace('data=','').split(',');
+        if (asString.startsWith('b=')) {
+            resultB.innerHTML = "Battery: " + asString;
+        }
 
-            var sensor_node_battery = Math.max(0, Math.min(100, chunks[0]));
-            var sensor_node_signal = Math.max(0, Math.min(100, chunks[1]));
-            var sensor_node_volume = Math.max(0, Math.min(100, chunks[2]));    
-            var relay_node_battery = Math.max(0, Math.min(100, chunks[3]));
+        if (asString.startsWith('d=')) {
             
-            resultDiv.innerHTML = "Received: " + asString + "<br/>";
-            console.log([sensor_node_battery, sensor_node_signal, sensor_node_volume, relay_node_battery]);
+            resultD.innerHTML = "Data: " + asString;
 
-            var signalBars = Math.round(app.num_signal_bars * (sensor_node_signal / 100));
-            console.log('signalBars', signalBars);
+            var chunks = asString.replace('d=','').split(',');
+            console.log('Number of chunks ', chunks.length);
 
-            var volumeBars = Math.round(app.num_volume_bars * (sensor_node_volume / 100));
-            console.log('volumeBars', volumeBars);
+            // Remember there is extra data at the end to reduce errors
+            if (chunks.length >= 3) { 
 
-            app.setBars(signalBars, volumeBars);
+                var sensor_node_id      = Math.max(0, Math.min(100, chunks[0]));
+                var sensor_node_signal  = Math.max(0, Math.min(100, chunks[1]));
+                var sensor_node_volume  = Math.max(0, Math.min(100, chunks[2]));  
+                var sensor_node_battery = Math.max(0, Math.min(100, chunks[3]));  
+                var relay_node_battery  = Math.max(0, Math.min(100, chunks[4]));
+                
+                console.log([sensor_node_battery, sensor_node_signal, sensor_node_volume, relay_node_battery]);
 
-            if (signalBars == 0) { 
-                app.setDead(); 
-            } else {
-                $('#signal-icon1').attr('src', 'img/v2/signal-min.svg');
-                $('#signal-icon2').attr('src', 'img/v2/signal-max.svg');
+                var signalBars = Math.round(app.num_signal_bars * (sensor_node_signal / 100));
+                console.log('signalBars', signalBars);
+
+                var volumeBars = Math.round(app.num_volume_bars * (sensor_node_volume / 100));
+                console.log('volumeBars', volumeBars);
+
+                app.setBars(signalBars, volumeBars);
+                
+                $('#sensorNodeID').html('Node: '+sensor_node_id);
+
+                if (signalBars == 0) { 
+                    app.setDead(); 
+                } else {
+                    $('#signal-icon1').attr('src', 'img/v2/signal-min.svg');
+                    $('#signal-icon2').attr('src', 'img/v2/signal-max.svg');
+                }
+
+                $('#waiting-message').html('');
+                waitingForData.hidden = true;
+                signalRow.hidden = false;
+                volumeRow.hidden = false;
+
             }
-
-            $('#waiting-message').html('');
-            waitingForData.hidden = true;
-            signalRow.hidden = false;
-            volumeRow.hidden = false;
         }
     },
 
@@ -334,8 +350,8 @@ var app = {
 
         var success = function() {
             console.log("success");
-            resultDiv.innerHTML = resultDiv.innerHTML + "Sent: " + messageInput.value + "<br/>";
-            resultDiv.scrollTop = resultDiv.scrollHeight;
+            resultD.innerHTML = resultD.innerHTML + "Sent: " + messageInput.value + "<br/>";
+            resultD.scrollTop = resultD.scrollHeight;
         };
 
         var failure = function() {

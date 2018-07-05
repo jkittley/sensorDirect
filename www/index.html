@@ -96,6 +96,8 @@
 
         <div id="detailPage" class="page">
 
+            <div id="sensorNodeID">Unknown</div>
+            
             <div id="signalRow" class="row mb-4 justify-content-center"></div>
             
             <div id="volumeRow" class="row mb-4 justify-content-center"></div>
@@ -107,16 +109,11 @@
                <h3 class="mt-4">On the sensor you want to monitor, press and hold the button until the light turns green. When you let go the light will flash blue until a connection is made. Once connected the light will remain a constant blue until disconnected.</h3>
             </div>
 
-            <div class="bottom-bar">
-                <!-- <div class="row mb-4">
-                    <div class="col-11">
-                        <button id="disconnectButton" class="btn btn-info btn-block">Exit</button>
-                    </div>
-                </div> -->
-                
+            <div class="bottom-bar">                
                 <div class="collapse debug-elem">
                     <h4>Debug Console</h4>
-                    <div id="resultDiv"></div>
+                    <div id="resultD"></div>
+                    <div id="resultB"></div>
                     <div class="input-group mb-3">
                         <input type="text" id="messageInput" class="form-control" value="Hello"/>
                         <div class="input-group-append">
