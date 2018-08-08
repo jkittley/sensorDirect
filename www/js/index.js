@@ -251,6 +251,7 @@ var app = {
                     app.setBars(0,0);
                     $('#waiting-message').html("No data received for "+ app.max_age_in_seconds + " seconds. Is the sensor in configuration mode?");
                     waitingForData.hidden = false;
+                    signalErrorText.hidden = true;
                     signalRow.hidden = true;
                     volumeRow.hidden = true;
                 }
@@ -311,8 +312,10 @@ var app = {
                 $('#sensorNodeID').html('Node: '+sensor_node_id);
 
                 if (signalBars == 0) { 
+                    signalErrorText.hidden = false;
                     app.setDead(); 
                 } else {
+                    signalErrorText.hidden = true;
                     $('#signal-icon1').attr('src', 'img/v2/signal-min.svg');
                     $('#signal-icon2').attr('src', 'img/v2/signal-max.svg');
                 }
@@ -340,7 +343,6 @@ var app = {
     setDead: function() {
         $('#signal-icon2').attr('src', 'img/v2/signal-red.svg');
         $('#signal-icon1').attr('src', 'img/v2/signal-red.svg');
-        
         for (var i = 0; i < app.num_signal_bars; i++) {
             $('#signal-bar-'+i).attr('src', 'img/v2/bar-red.svg');
         }
@@ -392,6 +394,7 @@ var app = {
         mainPage.hidden = false;
         detailPage.hidden = true;
         searchPage.hidden = true;
+        signalErrorText.hidden = true;
     },
 
     showSearchPage: function() {
@@ -417,6 +420,7 @@ var app = {
 
     showDetailPage: function() {
         waitingForData.hidden = false;
+        signalErrorText.hidden = true;
         signalRow.hidden = true;
         volumeRow.hidden = true;
         $('#signalRow').html('<div class="col-1 strength-bar"><img id="signal-icon1" src="img/v2/signal-min.svg"></div>');

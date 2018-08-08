@@ -87,6 +87,7 @@
                 <h4>Debug Console</h4>
                 <ul id="deviceList" class="list-group"></ul>
                 <ul class="debug"></ul>
+
                 <button id="refreshButton" class="btn btn-primary btn-block"><i class="fas fa-sync"></i> Scan Again</button>
                 <p id="searchSpinner" class="lead text-center d-none"><i class="fas fa-sync fa-spin"></i> Refreshing...</p>
                 <p id="searchConnect" class="lead text-center d-none"><i class="fas fa-spinner fa-pulse"></i> Connecting...</p>
@@ -99,6 +100,10 @@
             <div id="sensorNodeID">Unknown</div>
             
             <div id="signalRow" class="row mb-4 justify-content-center"></div>
+
+            <div id="signalErrorText" class="row mb-4 justify-content-center">
+                <h1>No signal, please move closer to the base station.</h1>
+            </div>
             
             <div id="volumeRow" class="row mb-4 justify-content-center"></div>
             
@@ -134,5 +139,16 @@
     <script type="text/javascript">
         app.initialize();
     </script>
+    <style>
+        #signalErrorText {
+            position: absolute;
+            top:60px;
+            left:100px;
+            right: 100px;
+            height: 120px;
+            background-color: rgb(255, 255,255);
+            text-align: center;
+        }
+    </style>
 </body>
 </html>
