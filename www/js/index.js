@@ -16,6 +16,7 @@ function stringToBytes(string) {
 var app = {
 
     isVirtual: false,
+    signalOffset: 0,
 
     num_signal_bars: 10,
     num_volume_bars: 10,
@@ -57,13 +58,15 @@ var app = {
         // Settings
         setDataViewerURL.addEventListener('click', this.setDataViewerURL, false);
         setDebugMode.addEventListener('click', this.toggleDebugMode, false);
+
+        setSignalOffset.addEventListener('click', this.setSignalOffset, false);
     },
 
     
     onDeviceReady: function() {
         // Check if URL is set
         if (window.localStorage.getItem('data_view_url')===null) app.setDataViewerURL();
-
+        app.signalOffset = parseInt(window.localStorage.getItem('signal_offset', 0));
     },
 
     toggleDebugMode: function () {
@@ -86,6 +89,18 @@ var app = {
         };
         var defaultValue = storage.getItem('data_view_url')===null ? 'http://192.168.1.104/' : storage.getItem('data_view_url');
         navigator.notification.prompt("Please set the server URL", promptCallback, 'Server URL', ['Save', 'Cancel'], defaultValue);
+    },
+
+    setSignalOffset: function() {
+        var storage = window.localStorage;
+        var promptCallback = function(results) {
+            if (results.buttonIndex === 1) {
+                storage.setItem('signal_offset', parseInt(results.input1));
+                app.signalOffset = parseInt(results.input1);
+            }
+        };
+        var defaultValue = storage.getItem('signal_offset')===null ? '0' : storage.getItem('signal_offset');
+        navigator.notification.prompt("Please set the signal offset", promptCallback, 'Signal Offset Value', ['Save', 'Cancel'], defaultValue);
     },
 
     openBrowser: function() {
@@ -264,6 +279,16 @@ var app = {
         app.old_data_check = null;
     },
 
+    offSetValue: function (val, offset) {
+        let offsetVal = val - offset;
+        let newMax = 100 - offset;
+        let scaled = (offsetVal / newMax) * 100;
+        console.log('Before offset', val);
+        console.log('After offset', offsetVal);
+        console.log('After rescale', scaled);
+        return Math.max(0, Math.min(100, scaled));
+    },
+
     onData: function(data, isBytes=true) { 
         // Data should be a percentage i.e. 0 to 100 integers only
         console.log("NEW DATA:", data);
@@ -299,6 +324,8 @@ var app = {
                 var sensor_node_battery = Math.max(0, Math.min(100, chunks[3]));  
                 var relay_node_battery  = Math.max(0, Math.min(100, chunks[4]));
                 
+                sensor_node_signal = app.offSetValue(sensor_node_signal, app.signalOffset);
+
                 console.log([sensor_node_battery, sensor_node_signal, sensor_node_volume, relay_node_battery]);
 
                 var signalBars = Math.round(app.num_signal_bars * (sensor_node_signal / 100));
